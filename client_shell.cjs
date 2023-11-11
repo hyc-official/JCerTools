@@ -8,11 +8,14 @@ function shell(host) {
     const ws = new WebSocket(`ws://${host}/shell`);
     let latest_input = null;
     ws.on("open", () => {
-        process.stdout.write(`Connected to: ${host}\n\n`);
+        process.stdout.write(`Connected to: ${host}\n`);
     });
     rli.on("line", (data) => {
         ws.send(cs.b64enc(data + "\n"));
         latest_input = data + "\n";
+    });
+    rli.on("close", () => {
+        ws.close();
     });
     ws.on("message", (data) => {
         data = cs.b64dec(data);
@@ -21,7 +24,7 @@ function shell(host) {
         }
     });
     ws.on("close", () => {
-        process.stdout.write("\nDisconnected\n");
+        process.stdout.write("\nDisconnected");
         process.exit();
     });
 }
