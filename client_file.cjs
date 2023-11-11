@@ -1,7 +1,7 @@
 const rl = require("readline");
 const chalk = require("chalk");
 const WebSocket = require("ws");
-const file = require("./file.cjs");
+const ut = require("./utils.cjs");
 
 const rli = rl.createInterface({input: process.stdin});
 
@@ -12,14 +12,14 @@ function filet(host) {
         console.log(`Connected to: ${host}`);
     });
     rli.on("line", (data) => {
-        data = data.split(" ");
+        data = ut.splitParams(data);
         if (data[0] === "exit") {
             ws.close();
         } else if (data[0] === "read") {
             if (!data[1]) {
                 console.log(chalk.red("Error: File name missing"));
             } else {
-                const cont = file.readFile(process.cwd(), data[1]);
+                const cont = ut.fl.readFile(process.cwd(), data[1]);
                 if (!cont.exist) {
                     console.log(chalk.red("Error: File missing"));
                 } else {
@@ -34,7 +34,7 @@ function filet(host) {
             } else if (!filedata) {
                 console.log(chalk.red("Error: Filedata missing"));
             } else {
-                file.writeFile(process.cwd(), data[1], filedata);
+                ut.fl.writeFile(process.cwd(), data[1], filedata);
                 console.log(chalk.green("File saved"));
             }
         } else {
@@ -57,18 +57,17 @@ function filet(host) {
                 }
                 if (data.content) {
                     console.log(chalk.blue("DIR") + " " + chalk.yellow("FILE") + " " + chalk.magenta("UNKNOWN"));
-                    let str = "";
+                    const str = [];
                     data.content.forEach((e) => {
                         if (e.type === "DIR") {
-                            str += chalk.blue(e.name);
+                            str.push(chalk.blue(e.name));
                         } else if (e.type === "FILE") {
-                            str += chalk.yellow(e.name);
+                            str.push(chalk.yellow(e.name));
                         } else {
-                            str += chalk.magenta(e.name);
+                            str.push(chalk.magenta(e.name));
                         }
-                        str += " ";
                     });
-                    console.log(str);
+                    console.log(str.join(" / "));
                 }
             } else {
                 console.log(chalk.red(`UNOK ${data.error}`));

@@ -1,8 +1,8 @@
-const fs = require("fs");
+const fse = require("fs-extra");
 const path = require("path");
 
 function getFiles(dir) {
-    const raw = fs.readdirSync(dir);
+    const raw = fse.readdirSync(dir);
     const res = [];
     raw.forEach((e) => {
         const edir = path.join(dir, e);
@@ -11,7 +11,7 @@ function getFiles(dir) {
             type: "UNKNOWN",
         };
         try {
-            const stat = fs.statSync(edir);
+            const stat = fse.statSync(edir);
             if (stat.isFile()) {
                 prop.type = "FILE";
             } else if (stat.isDirectory()) {
@@ -24,70 +24,94 @@ function getFiles(dir) {
     });
     return res;
 }
-
 function chkDir(dir) {
-    return fs.existsSync(dir);
+    try {
+        if (fse.existsSync(dir)) {
+            const stat = fse.statSync(dir);
+            if (stat.isDirectory()) {
+                return true;
+            }
+        }
+    } catch (err) {}
+    return false;
 }
-
+function chkFile(dir) {
+    try {
+        if (fse.existsSync(dir)) {
+            const stat = fse.statSync(dir);
+            if (stat.isFile()) {
+                return true;
+            }
+        }
+    } catch (err) {}
+    return false;
+}
 function toDir(dir, to) {
     const ndir = path.join(dir, to);
-    const exist = fs.existsSync(ndir);
-    return {dir: ndir, exist};
+    if (path.isAbsolute(to) && chkDir(to)) {
+        return {dir: to, exist: true};
+    } else if (chkDir(ndir)) {
+        return {dir: ndir, exist: true};
+    } else {
+        return {exist: false};
+    }
 }
-
 function readFile(dir, file) {
     const fdir = path.join(dir, file);
-    if (fs.existsSync(fdir)) {
-        const buf = fs.readFileSync(fdir);
+    if (chkFile(fdir)) {
+        const buf = fse.readFileSync(fdir);
         return {base64: buf.toString("base64"), dir: fdir, exist: true};
     } else {
         return {dir: fdir, exist: false};
     }
 }
-
 function writeFile(dir, file, data) {
     const fdir = path.join(dir, file);
     const buf = Buffer.from(data, "base64");
-    fs.writeFileSync(fdir, buf);
+    if (chkDir(fdir)) {
+        return {dir: fdir, exist: true};
+    } else {
+        fse.writeFileSync(fdir, buf);
+        return {dir: fdir, exist: false};
+    }
 }
-
-function rmFile(dir, file) {
+function rm(dir, file) {
     const fdir = path.join(dir, file);
-    if (fs.existsSync(fdir)) {
-        fs.rmSync(fdir);
+    if (fse.existsSync(fdir)) {
+        fse.removeSync(fdir);
         return {dir: fdir, exist: true};
     } else {
         return {dir: fdir, exist: false};
     }
 }
-
-function cpFile(dir, from, to) {
+function cp(dir, from, to) {
     const fdir = path.join(dir, from);
     const tdir = path.join(dir, to);
-    if (fs.existsSync(fdir)) {
-        fs.cpSync(fdir, tdir);
+    if (fse.existsSync(fdir)) {
+        fse.copySync(fdir, tdir);
         return {dir: tdir, exist: true};
     } else {
         return {dir: fdir, exist: false};
     }
 }
-
-function mvFile(dir, from, to) {
+function mv(dir, from, to) {
     const fdir = path.join(dir, from);
     const tdir = path.join(dir, to);
-    if (fs.existsSync(fdir)) {
-        fs.cpSync(fdir, tdir);
-        fs.rmSync(fdir);
+    if (fse.existsSync(fdir)) {
+        fse.moveSync(fdir, tdir);
         return {dir: tdir, exist: true};
     } else {
         return {dir: fdir, exist: false};
     }
 }
-
 function mkdir(dir, nd) {
     const ndir = path.join(dir, nd);
-    fs.mkdirSync(ndir);
-    return {dir: ndir, exist: true};
+    if (chkDir(ndir)) {
+        return {dir: ndir, exist: true};
+    } else {
+        fse.mkdirSync(ndir);
+        return {dir: ndir, exist: false};
+    }
 }
 
-module.exports = {getFiles, chkDir, toDir, readFile, writeFile, rmFile, cpFile, mvFile, mkdir};
+module.exports = {getFiles, chkDir, chkFile, toDir, readFile, writeFile, rm, cp, mv, mkdir};

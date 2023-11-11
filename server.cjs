@@ -63,7 +63,7 @@ app.ws("/file", (ws, req) => {
                 if (data.para.length < 1) {
                     ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else {
-                    const cont = file.rmFile(dir, data.para[0]);
+                    const cont = file.rm(dir, data.para[0]);
                     if (!cont.exist) {
                         ws.send(JSON.stringify({ok: false, dir: cont.dir, error: "File does not exist"}));
                     } else {
@@ -75,9 +75,9 @@ app.ws("/file", (ws, req) => {
                 if (data.para.length < 2) {
                     ws.send(JSON.stringify({ok: false, error: "Command must have 2 parameters"}));
                 } else {
-                    const cont = file.cpFile(dir, data.para[0], data.para[1]);
+                    const cont = file.cp(dir, data.para[0], data.para[1]);
                     if (!cont.exist) {
-                        ws.send(JSON.stringify({ok: false, dir: cont.dir, error: "File does not exist"}));
+                        ws.send(JSON.stringify({ok: false, dir: cont.dir, error: "Source file does not exist"}));
                     } else {
                         ws.send(JSON.stringify({ok: true, dir: cont.dir}));
                     }
@@ -87,7 +87,7 @@ app.ws("/file", (ws, req) => {
                 if (data.para.length < 2) {
                     ws.send(JSON.stringify({ok: false, error: "Command must have 2 parameters"}));
                 } else {
-                    const cont = file.mvFile(dir, data.para[0], data.para[1]);
+                    const cont = file.mv(dir, data.para[0], data.para[1]);
                     if (!cont.exist) {
                         ws.send(JSON.stringify({ok: false, dir: cont.dir, error: "File does not exist"}));
                     } else {
@@ -100,7 +100,11 @@ app.ws("/file", (ws, req) => {
                     ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else {
                     const cont = file.mkdir(dir, data.para[0]);
-                    ws.send(JSON.stringify({ok: true, dir: cont.dir}));
+                    if (cont.exist) {
+                        ws.send(JSON.stringify({ok: false, dir: cont.dir, error: "Directory already exists"}));
+                    } else {
+                        ws.send(JSON.stringify({ok: true, dir: cont.dir}));
+                    }
                 }
                 break;
             case "down":
@@ -121,8 +125,12 @@ app.ws("/file", (ws, req) => {
                 } else if (!data.filedata) {
                     ws.send(JSON.stringify({ok: false, error: "File data not found"}));
                 } else {
-                    file.writeFile(dir, data.para[0], data.filedata);
-                    ws.send(JSON.stringify({ok: true}));
+                    const cont = file.writeFile(dir, data.para[0], data.filedata);
+                    if (cont.exist) {
+                        ws.send(JSON.stringify({ok: false, dir: cont.dir, error: "Directory of the same name already exists"}));
+                    } else {
+                        ws.send(JSON.stringify({ok: true, dir: cont.dir}));
+                    }
                 }
                 break;
             default:
