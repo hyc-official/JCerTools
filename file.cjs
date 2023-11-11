@@ -6,15 +6,19 @@ function getFiles(dir) {
     const res = [];
     raw.forEach((e) => {
         const edir = path.join(dir, e);
-        const stat = fs.statSync(edir);
         const prop = {
             name: e,
             type: "UNKNOWN",
         };
-        if (stat.isFile()) {
-            prop.type = "FILE";
-        } else if (stat.isDirectory()) {
-            prop.type = "DIR";
+        try {
+            const stat = fs.statSync(edir);
+            if (stat.isFile()) {
+                prop.type = "FILE";
+            } else if (stat.isDirectory()) {
+                prop.type = "DIR";
+            }
+        } catch (err) {
+            prop.error = err.message;
         }
         res.push(prop);
     });
