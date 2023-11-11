@@ -1,4 +1,5 @@
 {
+  "name": "jcertools",
   "dependencies": {
     "chalk": "^4.0.0",
     "express": "^4.18.2",
@@ -6,6 +7,7 @@
     "fs": "^0.0.1-security",
     "iconv-lite": "^0.6.3",
     "jschardet": "^3.0.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "pkg": "^5.8.1"
   }
 }
