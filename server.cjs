@@ -45,7 +45,7 @@ app.ws("/file", (ws, req) => {
         switch (data.type) {
             case "cd":
                 if (data.para.length < 1) {
-                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameters"}));
+                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else {
                     const ndir = file.toDir(dir, data.para[0]);
                     if (!ndir.exist) {
@@ -61,7 +61,7 @@ app.ws("/file", (ws, req) => {
                 break;
             case "rm":
                 if (data.para.length < 1) {
-                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameters"}));
+                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else {
                     const cont = file.rmFile(dir, data.para[0]);
                     if (!cont.exist) {
@@ -97,7 +97,7 @@ app.ws("/file", (ws, req) => {
                 break;
             case "mkdir":
                 if (data.para.length < 1) {
-                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameters"}));
+                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else {
                     const cont = file.mkdir(dir, data.para[0]);
                     ws.send(JSON.stringify({ok: true, dir: cont.dir}));
@@ -105,7 +105,7 @@ app.ws("/file", (ws, req) => {
                 break;
             case "down":
                 if (data.para.length < 1) {
-                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameters"}));
+                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else {
                     const cont = file.readFile(dir, data.para[0]);
                     if (!cont.exist) {
@@ -117,7 +117,7 @@ app.ws("/file", (ws, req) => {
                 break;
             case "up":
                 if (data.para.length < 1) {
-                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameters"}));
+                    ws.send(JSON.stringify({ok: false, error: "Command must have 1 parameter"}));
                 } else if (!data.filedata) {
                     ws.send(JSON.stringify({ok: false, error: "File data not found"}));
                 } else {
