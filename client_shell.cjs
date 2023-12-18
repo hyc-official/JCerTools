@@ -1,6 +1,6 @@
 const rl = require("readline");
 const WebSocket = require("ws");
-const cs = require("./charset.cjs");
+const ut = require("./utils.cjs");
 
 const rli = rl.createInterface({input: process.stdin});
 
@@ -11,14 +11,14 @@ function shell(host) {
         process.stdout.write(`Connected to: ${host}\n`);
     });
     rli.on("line", (data) => {
-        ws.send(cs.b64enc(data + "\n"));
+        ws.send(ut.cs.b64enc(data + "\n"));
         latest_input = data + "\n";
     });
     rli.on("close", () => {
         ws.close();
     });
     ws.on("message", (data) => {
-        data = cs.b64dec(data);
+        data = ut.cs.b64dec(data);
         if (data !== latest_input) {
             process.stdout.write(data);
         }
