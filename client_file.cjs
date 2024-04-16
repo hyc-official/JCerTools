@@ -25,7 +25,6 @@ function filet(host) {
                 } else {
                     filedata = cont.base64;
                     console.log(chalk.green("Filedata updated"));
-                    console.log(filedata);
                 }
             }
         } else if (data[0] === "write") {
