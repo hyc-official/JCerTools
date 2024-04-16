@@ -28,7 +28,7 @@ app.ws("/shell", (ws, req) => {
         ws.close();
     });
     ws.on("message", (data) => {
-        term.stdin.write(ut.cs.b64dec(data));
+        term.stdin.write(ut.cs.b64dec_shl(data));
     });
     ws.on("close", () => {
         term.kill();
